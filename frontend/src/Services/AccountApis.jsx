@@ -1,6 +1,15 @@
 export async function getAccounts() {
+  
+  const token = localStorage.getItem('token');
+
   const response = await fetch(
-    'http://localhost:3000/accounts'
+    'http://localhost:3000/accounts',
+    {
+      headers: {
+        authorization: `Bearer ${token}`
+      }
+    }
+
   );
 
   if (!response.ok) {
