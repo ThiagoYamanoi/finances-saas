@@ -17,3 +17,11 @@ export async function getAccountsByItemId(itemId) {
 
     return accounts.results;
 }
+
+export async function getTransactionsByAccountId(accountId) {
+
+    const transactions =
+        await pluggy.fetchAllTransactions(accountId);
+
+    return transactions;
+}

@@ -2,6 +2,7 @@ import express from "express";
 import { createConnectToken, getAccountsByItemId } from "../../Services/PluggyService.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import pool from "../database/connection.js";
+import { saveBankAccount } from "../../Services/BankAccountService.js";
 
 const router = express.Router();
 
@@ -88,8 +89,7 @@ router.get(
 
             for (const connection of result.rows) {
 
-                const pluggyAccounts =
-                    await getAccountsByItemId(
+                const pluggyAccounts = await getAccountsByItemId(
                         connection.pluggy_item_id
                     );
 
@@ -104,6 +104,61 @@ router.get(
 
             res.status(500).json({
                 error: "Erro ao buscar contas bancárias"
+            });
+        }
+    }
+);
+
+router.post(
+    "/accounts/sync",
+    authenticateToken,
+    async (req, res) => {
+
+        try {
+
+            const userId = req.user.id;
+
+            const connections = await pool.query(
+                `
+                SELECT id, pluggy_item_id
+                FROM bank_connections
+                WHERE user_id = $1
+                `,
+                [userId]
+            );
+
+            if (connections.rows.length === 0) {
+                return res.status(404).json({
+                    error: "Nenhuma conexão bancária encontrada"
+                });
+            }
+
+            const savedAccounts = [];
+
+            for (const connection of connections.rows) {
+
+                const pluggyAccounts = await getAccountsByItemId(
+                        connection.pluggy_item_id
+                    );
+
+                for (const account of pluggyAccounts) {
+
+                    const savedAccount = await saveBankAccount(
+                            account, connection.id, userId
+                        );
+
+                    savedAccounts.push(savedAccount);
+                }
+            }
+
+            res.json(savedAccounts);
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                error: "Erro ao sincronizar contas bancárias"
             });
         }
     }
