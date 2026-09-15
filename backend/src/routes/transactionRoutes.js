@@ -6,18 +6,14 @@ const router = Router();
 
 router.get('/', authenticateToken, async (req, res) => {
   try {
+
     const userId = req.user.id;
 
     const result = await pool.query(
       `
       SELECT
-        t.id,
-        t.description,
-        t.amount,
-        t.data,
-        t.account_id,
+        t.*,
         a.name AS account_name,
-        t.category_id,
         c.name AS category_name
 
       FROM transactions t
@@ -25,12 +21,12 @@ router.get('/', authenticateToken, async (req, res) => {
       INNER JOIN accounts a
         ON t.account_id = a.id
 
-      INNER JOIN category c
+      LEFT JOIN category c
         ON t.category_id = c.id
 
       WHERE a.user_id = $1
 
-      ORDER BY t.data DESC, t.id DESC
+      ORDER BY t.data DESC, t.id DESC;
       `,
       [userId]
     );
@@ -38,6 +34,7 @@ router.get('/', authenticateToken, async (req, res) => {
     res.json(result.rows);
 
   } catch (error) {
+
     console.error(error);
 
     res.status(500).json({
@@ -45,7 +42,6 @@ router.get('/', authenticateToken, async (req, res) => {
     });
   }
 });
-
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
