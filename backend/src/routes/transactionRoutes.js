@@ -42,6 +42,7 @@ router.get('/', authenticateToken, async (req, res) => {
     });
   }
 });
+
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
@@ -98,5 +99,6 @@ router.post('/', authenticateToken, async (req, res) => {
     });
   }
 });
+
 
 export default router;
