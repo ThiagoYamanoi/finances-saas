@@ -12,6 +12,31 @@ export async function getConnectToken() {
     return data.accessToken;
 }
 
+export async function syncBankData() {
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        "http://localhost:3000/bank/sync",
+        {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.error || "Erro ao sincronizar dados bancários"
+        );
+    }
+
+    return data;
+}
+
 export async function saveBankConnection(itemId) {
 
     const token = localStorage.getItem("token");

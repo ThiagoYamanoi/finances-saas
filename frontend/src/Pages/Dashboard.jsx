@@ -4,20 +4,30 @@ import { getTransactions } from '../Services/TransactionApis';
 import { getAccounts } from '../Services/AccountApis';
 import { getCategories } from '../Services/CategoryApis';
 import BankConnect from '../Components/BankConnect';
+import { syncBankData } from '../Services/PluggyApis';
 
 
 function Dashboard() {
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
-    getTransactions()
-      .then(data => {
-        setTransactions(data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }, []);
+
+  async function loadDashboard() {
+    try {
+      await syncBankData();
+      const data = await getTransactions();
+
+      setTransactions(data);
+
+    } catch (error) {
+      console.error(
+        "Erro ao carregar Dashboard:",
+        error
+      );
+    }
+  }
+  loadDashboard();
+}, []);
   
   function handleTransactionCreated(newTransaction) {
   setTransactions(previousTransactions => {
