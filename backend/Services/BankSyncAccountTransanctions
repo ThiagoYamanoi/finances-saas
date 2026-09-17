@@ -1,35 +1,74 @@
-import express from "express";
-import { authenticateToken } from "../middlewares/authMiddleware.js";
-import { syncBankData } from "../../Services/BankSyncService.js";
+import pool from "../src/database/connection.js";
 
-const router = express.Router();
+import { saveBankAccount } from "./BankAccountService.js";
+import { saveBankTransaction } from "./BankTransactionService.js";
 
-router.post(
-    "/sync",
-    authenticateToken,
-    async (req, res) => {
-        try {
+import {
+    getAccountsByItemId,
+    getTransactionsByAccountId
+} from "./PluggyService.js";
 
-            const userId = req.user.id;
 
-            const result = await syncBankData(userId);
+export async function syncBankData(userId) {
 
-            res.status(200).json({
-                message: "Dados bancários sincronizados com sucesso",
-                accounts: result.accounts,
-                transactions: result.transactions
-            });
+    const connections = await pool.query(
+        `
+        SELECT id, pluggy_item_id
+        FROM bank_connections
+        WHERE user_id = $1
+        `,
+        [userId]
+    );
 
-        } catch (error) {
+    if (connections.rows.length === 0) {
+        throw new Error(
+            "Nenhuma conexão bancária encontrada"
+        );
+    }
 
-            console.error(error);
+    const savedAccounts = [];
+    const savedTransactions = [];
 
-            res.status(500).json({
-                error: error.message
-            });
+    for (const connection of connections.rows) {
 
+        const accounts = await getAccountsByItemId(
+            connection.pluggy_item_id
+        );
+
+        for (const account of accounts) {
+
+            // Salva ou atualiza a conta
+            const savedAccount = await saveBankAccount(
+                account,
+                connection.id,
+                userId
+            );
+
+            savedAccounts.push(savedAccount);
+
+            // Busca as transações dessa conta
+            const transactions =
+                await getTransactionsByAccountId(
+                    account.id
+                );
+
+            for (const transaction of transactions) {
+
+                const savedTransaction =
+                    await saveBankTransaction(
+                        transaction,
+                        userId
+                    );
+
+                savedTransactions.push(
+                    savedTransaction
+                );
+            }
         }
     }
-);
 
-export default router;
+    return {
+        accounts: savedAccounts,
+        transactions: savedTransactions
+    };
+}

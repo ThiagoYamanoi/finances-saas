@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
-import { syncBankData } from "../../Services/BankSyncService.js";
+import { syncBankData } from "../../Services/BankSyncAccountTransanctions";
 
 const router = express.Router();
 
