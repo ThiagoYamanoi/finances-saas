@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Form from '../Components/Form';
 import BankConnect from '../Components/BankConnect';
 
 import { getTransactions } from '../Services/TransactionApis';
 import { syncBankData } from '../Services/PluggyApis';
+
 
 
 function Dashboard() {
@@ -115,6 +117,8 @@ function Dashboard() {
 
   }
 
+  const navigate = useNavigate();
+
   return (
 
     <div className="min-h-screen bg-gray-100 text-gray-800">
@@ -197,47 +201,77 @@ function Dashboard() {
 
           ) : (
 
-            <div className="flex flex-col gap-3">
+<div className="flex flex-col gap-3">
 
-              {transactions.map(transaction => (
+  {transactions.slice(0, 5).map(transaction => (
 
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:shadow-md"
-                >
+    <div
+      key={transaction.id}
+      className="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:shadow-md"
+    >
 
-                  <div>
+      <div>
 
-                    <h3 className="font-semibold">
-                      {transaction.description}
-                    </h3>
+        <h3 className="font-semibold">
+          {transaction.description}
+        </h3>
 
-                    <p className="text-sm text-gray-500">
-                      {new Date(transaction.data).toLocaleDateString('pt-BR')}
-                    </p>
+        <p className="text-sm text-gray-500">
+          {new Date(transaction.data).toLocaleDateString('pt-BR')}
+        </p>
 
-                  </div>
+      </div>
 
 
-                  <div className="text-right">
+      <div className="text-right">
 
-                    <strong>
-                      R$ {Number(transaction.amount).toFixed(2)}
-                    </strong>
+        <strong>
+          R$ {Number(transaction.amount).toFixed(2)}
+        </strong>
 
-                    <p className="text-xs text-gray-400">
-                      Conta {transaction.account_name}
-                      {' • '}
-                      Categoria {transaction.category_name || "Sem categoria"}
-                    </p>
+        <p className="text-xs text-gray-400">
+          Conta {transaction.account_name}
+          {' • '}
+          Categoria {transaction.category_name || "Sem categoria"}
+        </p>
 
-                  </div>
+      </div>
 
-                </div>
+    </div>
 
-              ))}
+  ))}
 
-            </div>
+
+  {transactions.length > 0 && (
+
+    <button
+      onClick={() =>
+        navigate('/transactions', {
+          state: {
+            transactions
+          }
+        })
+      }
+      className="
+        mt-3
+        w-full
+        rounded-xl
+        border
+        border-gray-300
+        px-4
+        py-3
+        font-semibold
+        text-gray-700
+        transition
+        hover:bg-gray-100
+      "
+    >
+      Ver todas as transações →
+    </button>
+
+  )}
+
+</div>
 
           )}
 
