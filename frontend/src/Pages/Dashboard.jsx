@@ -12,13 +12,14 @@ function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
 
     async function loadDashboard() {
 
       setLoading(true);
+
       try {
+
         try {
 
           await syncBankData();
@@ -29,6 +30,7 @@ function Dashboard() {
             "Sincronização bancária não realizada:",
             error.message
           );
+
         }
 
         const data = await getTransactions();
@@ -50,7 +52,40 @@ function Dashboard() {
 
     }
 
+    async function refreshTransactions() {
+
+      try {
+
+        const data = await getTransactions();
+
+        setTransactions(data);
+
+      } catch (error) {
+
+        console.error(
+          "Erro ao atualizar transações:",
+          error
+        );
+
+      }
+
+    }
+
     loadDashboard();
+
+
+    const interval = setInterval(() => {
+
+      refreshTransactions();
+
+    }, 30000);
+
+
+    return () => {
+
+      clearInterval(interval);
+
+    };
 
   }, []);
 
