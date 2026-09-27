@@ -3,16 +3,21 @@ import { useNavigate } from 'react-router-dom';
 
 import Form from '../Components/Form';
 import BankConnect from '../Components/BankConnect';
+import FinancialOverview from '../Components/FinancialOverview';
 
 import { getTransactions } from '../Services/TransactionApis';
+import { getAccounts } from '../Services/AccountApis';
 import { syncBankData } from '../Services/PluggyApis';
-
 
 
 function Dashboard() {
 
   const [transactions, setTransactions] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
 
@@ -35,14 +40,20 @@ function Dashboard() {
 
         }
 
-        const data = await getTransactions();
 
-        setTransactions(data);
+        const transactionsData = await getTransactions();
+
+        const accountsData = await getAccounts();
+
+
+        setTransactions(transactionsData);
+        setAccounts(accountsData);
+
 
       } catch (error) {
 
         console.error(
-          "Erro ao buscar transações:",
+          "Erro ao carregar Dashboard:",
           error
         );
 
@@ -54,18 +65,24 @@ function Dashboard() {
 
     }
 
-    async function refreshTransactions() {
+
+    async function refreshDashboardData() {
 
       try {
 
-        const data = await getTransactions();
+        const transactionsData = await getTransactions();
 
-        setTransactions(data);
+        const accountsData = await getAccounts();
+
+
+        setTransactions(transactionsData);
+        setAccounts(accountsData);
+
 
       } catch (error) {
 
         console.error(
-          "Erro ao atualizar transações:",
+          "Erro ao atualizar dados do Dashboard:",
           error
         );
 
@@ -73,12 +90,13 @@ function Dashboard() {
 
     }
 
+
     loadDashboard();
 
 
     const interval = setInterval(() => {
 
-      refreshTransactions();
+      refreshDashboardData();
 
     }, 30000);
 
@@ -101,6 +119,7 @@ function Dashboard() {
         newTransaction
       ];
 
+
       return updatedTransactions.sort((a, b) => {
 
         const dateDifference =
@@ -111,17 +130,18 @@ function Dashboard() {
         }
 
         return b.id - a.id;
+
       });
 
     });
 
   }
 
-  const navigate = useNavigate();
 
   return (
 
     <div className="min-h-screen bg-gray-100 text-gray-800">
+
 
       <header className="bg-gray-900 px-8 py-8 text-white">
 
@@ -139,6 +159,7 @@ function Dashboard() {
 
           </div>
 
+
           <BankConnect />
 
         </div>
@@ -146,136 +167,199 @@ function Dashboard() {
       </header>
 
 
-      <main className="mx-auto grid w-[90%] max-w-6xl grid-cols-1 gap-8 py-10 lg:grid-cols-[350px_1fr]">
 
-        <Form
-          onTransactionCreated={handleTransactionCreated}
-        />
+      <main className="mx-auto w-[90%] max-w-6xl py-10">
 
 
-        <section className="rounded-2xl bg-white p-7 shadow-sm">
+        {/* FORM + TRANSAÇÕES RECENTES */}
 
-          <div className="mb-6 flex items-center justify-between">
-
-            <div>
-
-              <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-                Histórico
-              </p>
-
-              <h2 className="text-2xl font-bold">
-                Transações
-              </h2>
-
-            </div>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[350px_1fr]">
 
 
-            <span className="rounded-full bg-gray-100 px-3 py-2 text-sm">
-              {transactions.length} transações
-            </span>
-
-          </div>
+          <Form
+            onTransactionCreated={handleTransactionCreated}
+          />
 
 
-          {loading ? (
+          <section className="rounded-2xl bg-white p-7 shadow-sm">
 
-            <div className="flex items-center gap-3 py-10 text-gray-500">
+            <div className="mb-6 flex items-center justify-between">
 
-              <div
-                className="
-                  h-6
-                  w-6
-                  animate-spin
-                  rounded-full
-                  border-4
-                  border-gray-300
-                  border-t-gray-700
-                "
-              />
+              <div>
 
-              <span>
-                Atualizando suas finanças...
+                <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                  Histórico
+                </p>
+
+                <h2 className="text-2xl font-bold">
+                  Transações recentes
+                </h2>
+
+              </div>
+
+
+              <span className="rounded-full bg-gray-100 px-3 py-2 text-sm">
+
+                {transactions.length} transações
+
               </span>
 
             </div>
 
-          ) : (
-
-<div className="flex flex-col gap-3">
-
-  {transactions.slice(0, 5).map(transaction => (
-
-    <div
-      key={transaction.id}
-      className="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:shadow-md"
-    >
-
-      <div>
-
-        <h3 className="font-semibold">
-          {transaction.description}
-        </h3>
-
-        <p className="text-sm text-gray-500">
-          {new Date(transaction.data).toLocaleDateString('pt-BR')}
-        </p>
-
-      </div>
 
 
-      <div className="text-right">
+            {loading ? (
 
-        <strong>
-          R$ {Number(transaction.amount).toFixed(2)}
-        </strong>
+              <div className="flex items-center gap-3 py-10 text-gray-500">
 
-        <p className="text-xs text-gray-400">
-          Conta {transaction.account_name}
-          {' • '}
-          Categoria {transaction.category_name || "Sem categoria"}
-        </p>
+                <div
+                  className="
+                    h-6
+                    w-6
+                    animate-spin
+                    rounded-full
+                    border-4
+                    border-gray-300
+                    border-t-gray-700
+                  "
+                />
 
-      </div>
+                <span>
+                  Atualizando suas finanças...
+                </span>
 
-    </div>
+              </div>
 
-  ))}
+            ) : (
+
+              <div className="flex flex-col gap-3">
 
 
-  {transactions.length > 0 && (
+                {transactions
+                  .slice(0, 5)
+                  .map(transaction => (
 
-    <button
-      onClick={() =>
-        navigate('/transactions', {
-          state: {
-            transactions
-          }
-        })
-      }
-      className="
-        mt-3
-        w-full
-        rounded-xl
-        border
-        border-gray-300
-        px-4
-        py-3
-        font-semibold
-        text-gray-700
-        transition
-        hover:bg-gray-100
-      "
-    >
-      Ver todas as transações →
-    </button>
+                    <div
+                      key={transaction.id}
+                      className="
+                        flex
+                        items-center
+                        justify-between
+                        rounded-xl
+                        border
+                        border-gray-200
+                        p-4
+                        transition
+                        hover:shadow-md
+                      "
+                    >
 
-  )}
+                      <div>
 
-</div>
+                        <h3 className="font-semibold">
+                          {transaction.description}
+                        </h3>
 
-          )}
+                        <p className="text-sm text-gray-500">
 
-        </section>
+                          {new Date(
+                            transaction.data
+                          ).toLocaleDateString(
+                            'pt-BR'
+                          )}
+
+                        </p>
+
+                      </div>
+
+
+                      <div className="text-right">
+
+                        <strong>
+
+                          R$ {
+                            Number(
+                              transaction.amount
+                            ).toFixed(2)
+                          }
+
+                        </strong>
+
+
+                        <p className="text-xs text-gray-400">
+
+                          Conta {
+                            transaction.account_name
+                          }
+
+                          {' • '}
+
+                          Categoria {
+                            transaction.category_name ||
+                            "Sem categoria"
+                          }
+
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+
+
+                {transactions.length > 0 && (
+
+                  <button
+                    onClick={() =>
+                      navigate(
+                        '/transactions',
+                        {
+                          state: {
+                            transactions
+                          }
+                        }
+                      )
+                    }
+                    className="
+                      mt-3
+                      w-full
+                      rounded-xl
+                      border
+                      border-gray-300
+                      px-4
+                      py-3
+                      font-semibold
+                      text-gray-700
+                      transition
+                      hover:bg-gray-100
+                    "
+                  >
+
+                    Ver todas as transações →
+
+                  </button>
+
+                )}
+
+              </div>
+
+            )}
+
+          </section>
+
+        </div>
+
+
+
+        {/* CONTEÚDO FINANCEIRO ABAIXO */}
+
+        <FinancialOverview
+          transactions={transactions}
+          accounts={accounts}
+        />
+
 
       </main>
 
