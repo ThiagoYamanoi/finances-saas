@@ -1,5 +1,5 @@
 import express from "express";
-import { createConnectToken, getAccountsByItemId, createWebhook } from "../../Services/PluggyService.js";
+import { createConnectToken, getAccountsByItemId } from "../../Services/PluggyService.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import pool from "../database/connection.js";
 import { saveBankAccount } from "../../Services/BankAccountService.js";
@@ -23,32 +23,6 @@ router.post("/connect", async (req, res) => {
     }
 });
 
-router.post('/webhook/register', authenticateToken, async (req, res) => {
-    try {
-        const { url } = req.body;
-
-        if (!url) {
-            return res.status(400).json({
-                message: 'URL do webhook é obrigatória'
-            });
-        }
-
-        const webhook = await createWebhook(url);
-
-        return res.status(201).json({
-            message: 'Webhook cadastrado com sucesso',
-            webhook
-        });
-
-    } catch (error) {
-        console.error('Erro ao cadastrar webhook:', error);
-
-        return res.status(500).json({
-            message: 'Erro ao cadastrar webhook',
-            error: error.message
-        });
-    }
-});
 
 router.post(
     "/connections",
@@ -177,14 +151,6 @@ router.post('/webhook', async (req, res) => {
             });
         }
 
-        const userId = result.rows[0].user_id;
-
-        console.log("Usuário encontrado:", userId);
-        console.log("Iniciando sincronização pelo webhook...");
-
-        await syncBankData(userId);
-
-        console.log("Sincronização pelo webhook concluída.");
 
         return res.status(200).json({
             message: 'Webhook processado com sucesso'

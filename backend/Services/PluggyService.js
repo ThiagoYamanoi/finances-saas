@@ -25,15 +25,3 @@ export async function getTransactionsByAccountId(accountId) {
     return transactions;
 }
 
-export async function createWebhook(url) {
-    const webhook = await pluggy.createWebhook(
-        "item/updated",
-        url,
-        {
-            "X-WEBHOOK-SECRET": process.env.PLUGGY_WEBHOOK_SECRET
-        }
-    );
-
-    return webhook;
-}
-

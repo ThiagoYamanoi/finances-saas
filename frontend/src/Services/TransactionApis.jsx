@@ -1,14 +1,11 @@
+import { authenticatedFetch } from "./apiClient";
+
 const API_URL = 'http://localhost:3000/transactions';
+
 
 export async function getTransactions() {
 
-  const token = localStorage.getItem('token');
-  const response = await fetch(API_URL,{
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-  );
+  const response = await authenticatedFetch(API_URL);
 
   if (!response.ok) {
     throw new Error('Erro ao buscar transações');
@@ -16,18 +13,17 @@ export async function getTransactions() {
 
   return response.json();
 }
+
+
 export async function createTransaction(transaction) {
 
-  const token = localStorage.getItem('token');
-
-  const response = await fetch(
-    'http://localhost:3000/transactions',
+  const response = await authenticatedFetch(
+    API_URL,
     {
       method: 'POST',
 
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        'Content-Type': 'application/json'
       },
 
       body: JSON.stringify(transaction)

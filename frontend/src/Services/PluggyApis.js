@@ -1,7 +1,14 @@
+import { authenticatedFetch } from "./apiClient";
+
+
 export async function getConnectToken() {
-    const response = await fetch("http://localhost:3000/bank/connect", {
-        method: "POST"
-    });
+
+    const response = await fetch(
+        "http://localhost:3000/bank/connect",
+        {
+            method: "POST"
+        }
+    );
 
     if (!response.ok) {
         throw new Error("Erro ao criar Connect Token");
@@ -12,17 +19,13 @@ export async function getConnectToken() {
     return data.accessToken;
 }
 
+
 export async function syncBankData() {
 
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
+    const response = await authenticatedFetch(
         "http://localhost:3000/bank/sync",
         {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
+            method: "POST"
         }
     );
 
@@ -37,18 +40,16 @@ export async function syncBankData() {
     return data;
 }
 
+
 export async function saveBankConnection(itemId) {
 
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
+    const response = await authenticatedFetch(
         "http://localhost:3000/bank/connections",
         {
             method: "POST",
 
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Content-Type": "application/json"
             },
 
             body: JSON.stringify({

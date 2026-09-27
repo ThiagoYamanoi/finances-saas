@@ -1,15 +1,9 @@
+import { authenticatedFetch } from "./apiClient";
+
 export async function getAccounts() {
-  
-  const token = localStorage.getItem('token');
 
-  const response = await fetch(
-    'http://localhost:3000/accounts',
-    {
-      headers: {
-        authorization: `Bearer ${token}`
-      }
-    }
-
+  const response = await authenticatedFetch(
+    "http://localhost:3000/accounts"
   );
 
   if (!response.ok) {

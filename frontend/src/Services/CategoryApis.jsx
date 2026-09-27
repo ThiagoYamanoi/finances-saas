@@ -1,11 +1,9 @@
+import { authenticatedFetch } from "./apiClient";
+
 export async function getCategories() {
-  const token = localStorage.getItem('token');
-  const response = await fetch(
-    'http://localhost:3000/categories', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
+
+  const response = await authenticatedFetch(
+    "http://localhost:3000/categories"
   );
 
   if (!response.ok) {
