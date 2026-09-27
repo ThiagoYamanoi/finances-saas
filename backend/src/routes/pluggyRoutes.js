@@ -1,9 +1,9 @@
 import express from "express";
-import { createConnectToken, getAccountsByItemId } from "../../Services/PluggyService.js";
+import { createConnectToken, getAccountsByItemId, createWebhook } from "../../Services/PluggyService.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import pool from "../database/connection.js";
 import { saveBankAccount } from "../../Services/BankAccountService.js";
-
+import { syncBankData } from "../../Services/BankSyncAccountTransanctions";
 const router = express.Router();
 
 router.post("/connect", async (req, res) => {
@@ -23,6 +23,32 @@ router.post("/connect", async (req, res) => {
     }
 });
 
+router.post('/webhook/register', authenticateToken, async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        if (!url) {
+            return res.status(400).json({
+                message: 'URL do webhook é obrigatória'
+            });
+        }
+
+        const webhook = await createWebhook(url);
+
+        return res.status(201).json({
+            message: 'Webhook cadastrado com sucesso',
+            webhook
+        });
+
+    } catch (error) {
+        console.error('Erro ao cadastrar webhook:', error);
+
+        return res.status(500).json({
+            message: 'Erro ao cadastrar webhook',
+            error: error.message
+        });
+    }
+});
 
 router.post(
     "/connections",
@@ -108,5 +134,69 @@ router.get(
         }
     }
 );
+
+router.post('/webhook', async (req, res) => {
+    try {
+        const webhookSecret = req.headers['x-webhook-secret'];
+
+        if (webhookSecret !== process.env.PLUGGY_WEBHOOK_SECRET) {
+            return res.status(401).json({
+                message: 'Webhook não autorizado'
+            });
+        }
+
+        const { event, itemId } = req.body;
+
+        console.log('Webhook recebido da Pluggy:');
+        console.log(req.body);
+
+        if (event !== 'item/updated') {
+            return res.status(200).json({
+                message: 'Evento ignorado'
+            });
+        }
+
+        if (!itemId) {
+            return res.status(400).json({
+                message: 'itemId não recebido'
+            });
+        }
+
+        const result = await pool.query(
+            `
+            SELECT user_id
+            FROM bank_connections
+            WHERE pluggy_item_id = $1
+            `,
+            [itemId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: 'Conexão bancária não encontrada'
+            });
+        }
+
+        const userId = result.rows[0].user_id;
+
+        console.log("Usuário encontrado:", userId);
+        console.log("Iniciando sincronização pelo webhook...");
+
+        await syncBankData(userId);
+
+        console.log("Sincronização pelo webhook concluída.");
+
+        return res.status(200).json({
+            message: 'Webhook processado com sucesso'
+        });
+
+    } catch (error) {
+        console.error('Erro ao processar webhook:', error);
+
+        return res.status(500).json({
+            message: 'Erro ao processar webhook'
+        });
+    }
+});
 
 export default router;

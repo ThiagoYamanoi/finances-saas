@@ -20,8 +20,20 @@ export async function getAccountsByItemId(itemId) {
 
 export async function getTransactionsByAccountId(accountId) {
 
-    const transactions =
-        await pluggy.fetchAllTransactions(accountId);
+    const transactions = await pluggy.fetchAllTransactions(accountId);
 
     return transactions;
 }
+
+export async function createWebhook(url) {
+    const webhook = await pluggy.createWebhook(
+        "item/updated",
+        url,
+        {
+            "X-WEBHOOK-SECRET": process.env.PLUGGY_WEBHOOK_SECRET
+        }
+    );
+
+    return webhook;
+}
+
