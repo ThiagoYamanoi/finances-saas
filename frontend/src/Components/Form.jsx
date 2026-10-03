@@ -56,10 +56,10 @@ function Form({ onTransactionCreated }) {
     };
 
     try {
-      const newTransaction = await createTransaction(transaction);
+      await createTransaction(transaction);
 
       if (onTransactionCreated) {
-        onTransactionCreated(newTransaction);
+        await onTransactionCreated();
       }
 
       setDescription('');

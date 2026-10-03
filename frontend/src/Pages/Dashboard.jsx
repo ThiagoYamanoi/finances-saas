@@ -42,11 +42,9 @@ function Dashboard() {
         }
 
 
-        const transactionsData =
-          await getTransactions();
+        const transactionsData = await getTransactions();
 
-        const accountsData =
-          await getAccounts();
+        const accountsData = await getAccounts();
 
 
         setTransactions(transactionsData);
@@ -112,36 +110,24 @@ function Dashboard() {
 
   }, []);
 
+async function handleTransactionCreated() {
 
-  function handleTransactionCreated(newTransaction) {
+  try {
 
-    setTransactions(previousTransactions => {
+    const transactionsData = await getTransactions();
 
-      const updatedTransactions = [
-        ...previousTransactions,
-        newTransaction
-      ];
+    setTransactions(transactionsData);
 
+  } catch (error) {
 
-      return updatedTransactions.sort((a, b) => {
-
-        const dateDifference =
-          new Date(b.data) -
-          new Date(a.data);
-
-
-        if (dateDifference !== 0) {
-          return dateDifference;
-        }
-
-
-        return b.id - a.id;
-
-      });
-
-    });
+    console.error(
+      'Erro ao atualizar transações:',
+      error
+    );
 
   }
+
+}
 
 
   return (
