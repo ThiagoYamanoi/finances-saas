@@ -10,8 +10,14 @@ import pluggyRoutes from './src/routes/pluggyRoutes.js'
 import bankSyncRoutes from "./src/routes/bankSyncRoutes.js";
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: process.env.FRONTEND_URL
 }));
 
 app.use(express.json());
@@ -24,6 +30,6 @@ app.use('/users', userRoutes);
 app.use('/bank', pluggyRoutes)
 app.use("/bank", bankSyncRoutes);   
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log('Servidor rodando na porta 3000');
 });

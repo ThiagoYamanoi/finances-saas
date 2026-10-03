@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Form from '../Components/Form';
 import BankConnect from '../Components/BankConnect';
 import FinancialOverview from '../Components/FinancialOverview';
+import TransactionCard from '../Components/TransactionCard';
 
 import { getTransactions } from '../Services/TransactionApis';
 import { getAccounts } from '../Services/AccountApis';
@@ -34,26 +35,27 @@ function Dashboard() {
         } catch (error) {
 
           console.log(
-            "Sincronização bancária não realizada:",
+            'Sincronização bancária não realizada:',
             error.message
           );
 
         }
 
 
-        const transactionsData = await getTransactions();
+        const transactionsData =
+          await getTransactions();
 
-        const accountsData = await getAccounts();
+        const accountsData =
+          await getAccounts();
 
 
         setTransactions(transactionsData);
         setAccounts(accountsData);
 
-
       } catch (error) {
 
         console.error(
-          "Erro ao carregar Dashboard:",
+          'Erro ao carregar Dashboard:',
           error
         );
 
@@ -70,19 +72,20 @@ function Dashboard() {
 
       try {
 
-        const transactionsData = await getTransactions();
+        const transactionsData =
+          await getTransactions();
 
-        const accountsData = await getAccounts();
+        const accountsData =
+          await getAccounts();
 
 
         setTransactions(transactionsData);
         setAccounts(accountsData);
 
-
       } catch (error) {
 
         console.error(
-          "Erro ao atualizar dados do Dashboard:",
+          'Erro ao atualizar dados do Dashboard:',
           error
         );
 
@@ -123,11 +126,14 @@ function Dashboard() {
       return updatedTransactions.sort((a, b) => {
 
         const dateDifference =
-          new Date(b.data) - new Date(a.data);
+          new Date(b.data) -
+          new Date(a.data);
+
 
         if (dateDifference !== 0) {
           return dateDifference;
         }
+
 
         return b.id - a.id;
 
@@ -143,15 +149,35 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-100 text-gray-800">
 
 
+      {/* HEADER */}
+
       <header className="bg-gray-900 px-8 py-8 text-white">
 
-        <div className="mx-auto flex w-[90%] max-w-6xl items-center justify-between">
+        <div
+          className="
+            mx-auto
+            flex
+            w-[90%]
+            max-w-6xl
+            items-center
+            justify-between
+          "
+        >
 
           <div>
 
-            <p className="text-sm font-semibold uppercase tracking-widest text-gray-400">
+            <p
+              className="
+                text-sm
+                font-semibold
+                uppercase
+                tracking-widest
+                text-gray-400
+              "
+            >
               Finance SaaS
             </p>
+
 
             <h1 className="text-3xl font-bold">
               Minhas finanças
@@ -168,28 +194,65 @@ function Dashboard() {
 
 
 
+      {/* CONTEÚDO */}
+
       <main className="mx-auto w-[90%] max-w-6xl py-10">
 
 
-        {/* FORM + TRANSAÇÕES RECENTES */}
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-8
+            lg:grid-cols-[350px_1fr]
+          "
+        >
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[350px_1fr]">
 
+          {/* FORMULÁRIO */}
 
           <Form
-            onTransactionCreated={handleTransactionCreated}
+            onTransactionCreated={
+              handleTransactionCreated
+            }
           />
 
 
-          <section className="rounded-2xl bg-white p-7 shadow-sm">
 
-            <div className="mb-6 flex items-center justify-between">
+          {/* TRANSAÇÕES RECENTES */}
+
+          <section
+            className="
+              rounded-2xl
+              bg-white
+              p-7
+              shadow-sm
+            "
+          >
+
+            <div
+              className="
+                mb-6
+                flex
+                items-center
+                justify-between
+              "
+            >
 
               <div>
 
-                <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                <p
+                  className="
+                    text-sm
+                    font-semibold
+                    uppercase
+                    tracking-wider
+                    text-gray-500
+                  "
+                >
                   Histórico
                 </p>
+
 
                 <h2 className="text-2xl font-bold">
                   Transações recentes
@@ -198,10 +261,18 @@ function Dashboard() {
               </div>
 
 
-              <span className="rounded-full bg-gray-100 px-3 py-2 text-sm">
-
-                {transactions.length} transações
-
+              <span
+                className="
+                  rounded-full
+                  bg-gray-100
+                  px-3
+                  py-2
+                  text-sm
+                "
+              >
+                {transactions.length}
+                {' '}
+                transações
               </span>
 
             </div>
@@ -210,7 +281,15 @@ function Dashboard() {
 
             {loading ? (
 
-              <div className="flex items-center gap-3 py-10 text-gray-500">
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  py-10
+                  text-gray-500
+                "
+              >
 
                 <div
                   className="
@@ -224,10 +303,23 @@ function Dashboard() {
                   "
                 />
 
+
                 <span>
                   Atualizando suas finanças...
                 </span>
 
+              </div>
+
+            ) : transactions.length === 0 ? (
+
+              <div
+                className="
+                  py-10
+                  text-center
+                  text-gray-500
+                "
+              >
+                Nenhuma transação encontrada.
               </div>
 
             ) : (
@@ -239,109 +331,42 @@ function Dashboard() {
                   .slice(0, 5)
                   .map(transaction => (
 
-                    <div
+                    <TransactionCard
                       key={transaction.id}
-                      className="
-                        flex
-                        items-center
-                        justify-between
-                        rounded-xl
-                        border
-                        border-gray-200
-                        p-4
-                        transition
-                        hover:shadow-md
-                      "
-                    >
-
-                      <div>
-
-                        <h3 className="font-semibold">
-                          {transaction.description}
-                        </h3>
-
-                        <p className="text-sm text-gray-500">
-
-                          {new Date(
-                            transaction.data
-                          ).toLocaleDateString(
-                            'pt-BR'
-                          )}
-
-                        </p>
-
-                      </div>
-
-
-                      <div className="text-right">
-
-                        <strong>
-
-                          R$ {
-                            Number(
-                              transaction.amount
-                            ).toFixed(2)
-                          }
-
-                        </strong>
-
-
-                        <p className="text-xs text-gray-400">
-
-                          Conta {
-                            transaction.account_name
-                          }
-
-                          {' • '}
-
-                          Categoria {
-                            transaction.category_name ||
-                            "Sem categoria"
-                          }
-
-                        </p>
-
-                      </div>
-
-                    </div>
+                      transaction={transaction}
+                    />
 
                   ))}
 
 
 
-                {transactions.length > 0 && (
-
-                  <button
-                    onClick={() =>
-                      navigate(
-                        '/transactions',
-                        {
-                          state: {
-                            transactions
-                          }
+                <button
+                  onClick={() =>
+                    navigate(
+                      '/transactions',
+                      {
+                        state: {
+                          transactions
                         }
-                      )
-                    }
-                    className="
-                      mt-3
-                      w-full
-                      rounded-xl
-                      border
-                      border-gray-300
-                      px-4
-                      py-3
-                      font-semibold
-                      text-gray-700
-                      transition
-                      hover:bg-gray-100
-                    "
-                  >
-
-                    Ver todas as transações →
-
-                  </button>
-
-                )}
+                      }
+                    )
+                  }
+                  className="
+                    mt-3
+                    w-full
+                    rounded-xl
+                    border
+                    border-gray-300
+                    px-4
+                    py-3
+                    font-semibold
+                    text-gray-700
+                    transition
+                    hover:bg-gray-100
+                  "
+                >
+                  Ver todas as transações →
+                </button>
 
               </div>
 
@@ -353,7 +378,7 @@ function Dashboard() {
 
 
 
-        {/* CONTEÚDO FINANCEIRO ABAIXO */}
+        {/* RESUMO FINANCEIRO */}
 
         <FinancialOverview
           transactions={transactions}
@@ -368,5 +393,6 @@ function Dashboard() {
   );
 
 }
+
 
 export default Dashboard;

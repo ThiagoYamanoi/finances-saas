@@ -1,9 +1,11 @@
 import { authenticatedFetch } from "./apiClient";
+import { API_URL } from './apiConfig';
+
 
 export async function getCategories() {
 
   const response = await authenticatedFetch(
-    "http://localhost:3000/categories"
+    `${API_URL}/categories`
   );
 
   if (!response.ok) {

@@ -1,9 +1,10 @@
 import { authenticatedFetch } from "./apiClient";
+import { API_URL } from './apiConfig';
 
 export async function getAccounts() {
 
   const response = await authenticatedFetch(
-    "http://localhost:3000/accounts"
+    `${API_URL}/accounts`
   );
 
   if (!response.ok) {

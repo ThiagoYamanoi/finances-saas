@@ -1,11 +1,10 @@
 import { authenticatedFetch } from "./apiClient";
-
-const API_URL = 'http://localhost:3000/transactions';
+import { API_URL } from './apiConfig';
 
 
 export async function getTransactions() {
 
-  const response = await authenticatedFetch(API_URL);
+  const response = await authenticatedFetch(`${API_URL}/transactions`);
 
   if (!response.ok) {
     throw new Error('Erro ao buscar transações');
@@ -18,7 +17,7 @@ export async function getTransactions() {
 export async function createTransaction(transaction) {
 
   const response = await authenticatedFetch(
-    API_URL,
+    `${API_URL}/transactions`,
     {
       method: 'POST',
 
