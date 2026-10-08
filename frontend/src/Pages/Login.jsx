@@ -3,20 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { sendLogin } from '../Services/AuthApis';
 
 function Login() {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
 
+    setLoading(true);
+
     try {
       const result = await sendLogin(email, password);
 
       if (result.token) {
-
         localStorage.setItem(
           'token',
           result.token
@@ -24,16 +25,16 @@ function Login() {
 
         navigate('/dashboard');
       }
-
     } catch (error) {
       console.log(error.message);
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="min-h-screen bg-slate-100">
 
-      {/* Cabeçalho */}
       <header className="bg-slate-900 px-8 py-7">
         <p className="text-sm tracking-widest text-slate-300">
           FINANCE SAAS
@@ -44,8 +45,6 @@ function Login() {
         </h1>
       </header>
 
-
-      {/* Área do login */}
       <main className="flex justify-center px-4 py-16">
 
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
@@ -64,13 +63,11 @@ function Login() {
             </p>
           </div>
 
-
           <form
             onSubmit={handleSubmit}
             className="space-y-5"
           >
 
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -84,7 +81,11 @@ function Login() {
                 type="email"
                 placeholder="seuemail@email.com"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+                disabled={loading}
+                required
                 className="
                   w-full
                   rounded-xl
@@ -99,12 +100,12 @@ function Login() {
                   focus:border-slate-700
                   focus:ring-2
                   focus:ring-slate-200
+                  disabled:cursor-not-allowed
+                  disabled:bg-slate-100
                 "
               />
             </div>
 
-
-            {/* Senha */}
             <div>
               <label
                 htmlFor="password"
@@ -118,7 +119,11 @@ function Login() {
                 type="password"
                 placeholder="Digite sua senha"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                disabled={loading}
+                required
                 className="
                   w-full
                   rounded-xl
@@ -133,28 +138,54 @@ function Login() {
                   focus:border-slate-700
                   focus:ring-2
                   focus:ring-slate-200
+                  disabled:cursor-not-allowed
+                  disabled:bg-slate-100
                 "
               />
             </div>
 
-
-            {/* Botão */}
             <button
               type="submit"
+              disabled={loading}
               className="
+                flex
                 w-full
-                rounded-xl
-                bg-slate-900
+                items-center
+                justify-center
+                gap-2
+                rounded-lg
+                bg-emerald-600
                 px-4
                 py-3
                 font-semibold
                 text-white
                 transition
-                hover:bg-slate-800
-                active:scale-[0.99]
+                hover:bg-emerald-700
+                disabled:cursor-not-allowed
+                disabled:opacity-70
               "
             >
-              Entrar
+              {loading ? (
+                <>
+                  <div
+                    className="
+                      h-5
+                      w-5
+                      animate-spin
+                      rounded-full
+                      border-2
+                      border-white
+                      border-t-transparent
+                    "
+                  />
+
+                  <span>
+                    Entrando...
+                  </span>
+                </>
+              ) : (
+                'Entrar'
+              )}
             </button>
 
           </form>
