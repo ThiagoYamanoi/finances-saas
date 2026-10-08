@@ -80,3 +80,17 @@ Backend Node.js / Express
 PostgreSQL / Neon
    ↓
 Frontend React
+
+# Acesso ao ambiente de demonstração
+
+A versão pública do Finance SaaS utiliza o ambiente Sandbox da Pluggy, permitindo testar o fluxo da aplicação sem conectar uma conta bancária real.
+
+Acesse a aplicação em:
+
+https://finances-saas-chi.vercel.app
+
+Para entrar no ambiente de demonstração, utilize:
+
+```text
+Email: thiago@email.com
+Senha: 123
