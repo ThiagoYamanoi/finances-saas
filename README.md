@@ -71,15 +71,18 @@ Entre as funcionalidades disponíveis estão:
 O fluxo principal da aplicação funciona da seguinte maneira:
 
 ```text
+Frontend React
+   ↓
+Backend Node.js / Express
+   ↓
+PostgreSQL / Neon
+
 Pluggy
    ↓
 Webhook
    ↓
 Backend Node.js / Express
-   ↓
-PostgreSQL / Neon
-   ↓
-Frontend React
+```
 
 # Acesso ao ambiente de demonstração
 
