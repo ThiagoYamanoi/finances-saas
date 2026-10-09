@@ -97,3 +97,52 @@ Para entrar no ambiente de demonstração, utilize:
 ```text
 Email: thiago@email.com
 Senha: 123
+```
+
+# Próximas evoluções
+
+A versão 1.0 foi desenvolvida com foco em concluir o fluxo principal da aplicação e manter a arquitetura simples o suficiente para fins de aprendizado e portfólio.
+
+As próximas versões poderão incluir melhorias de segurança, infraestrutura, desempenho e novas funcionalidades.
+
+## Segurança
+
+- substituir o armazenamento do JWT em `localStorage` por cookies `HttpOnly`
+- utilizar Access Token de curta duração
+- implementar Refresh Token
+- melhorar o controle de sessão e autenticação
+
+## Infraestrutura e DevOps
+
+- containerizar a aplicação com Docker
+- hospedar os serviços em uma VPS própria
+- utilizar Coolify para gerenciamento de deploy e infraestrutura
+- configurar CI/CD com GitHub Actions
+- automatizar testes e deploys
+- adicionar monitoramento da aplicação
+
+## Performance
+
+- reduzir consultas repetidas ao banco
+- implementar operações em lote durante sincronizações
+- otimizar o processo de importação e atualização de transações
+- adicionar paginação no histórico de transações
+
+## Integração bancária
+
+- evoluir do ambiente Sandbox para integrações reais via Open Finance
+- permitir gerenciamento das conexões bancárias
+- melhorar o suporte a diferentes tipos de contas
+- tratar cartões de crédito e faturas separadamente
+
+## Novas funcionalidades
+
+- gráficos de receitas e despesas
+- planejamento de gastos mensais
+- metas financeiras
+- gerenciamento mais completo de categorias
+- contas manuais
+- relatórios financeiros
+- melhorias de responsividade e experiência do usuário
+
+Essas evoluções serão implementadas gradualmente, mantendo o projeto como uma base de aprendizado contínuo em desenvolvimento Full Stack, integração com serviços externos e infraestrutura.
