@@ -96,7 +96,7 @@ Para entrar no ambiente de demonstração, utilize:
 
 ```text
 Email: thiago@email.com
-Senha: 123
+Senha: senha123
 ```
 
 # Próximas evoluções
