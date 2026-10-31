@@ -58,8 +58,8 @@ export async function saveBankTransaction(
         transaction.description,
         transaction.amount,
         date,
-        accountId,
-        categoryId,
+        transaction.accountId,
+        transaction.categoryId,
         transaction.id,
         "PLUGGY"
     ]
