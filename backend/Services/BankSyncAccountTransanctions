@@ -24,7 +24,7 @@ export async function syncBankData(userId) {
         throw new Error(
             "Nenhuma conexão bancária encontrada"
         );
-    }v
+    }
 
     const savedAccounts = [];
     const savedTransactions = [];
