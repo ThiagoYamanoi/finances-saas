@@ -27,6 +27,14 @@ export async function saveBankTransaction(
     const accountType = accountResult.rows[0].type;
     const categoryId = await getOrCreateBankCategory(transaction, accountType );
 
+
+    console.log("Categoria recebida da Pluggy:", {
+        pluggyCategoryId: transaction.categoryId,
+        pluggyCategoryName: transaction.category
+    });
+
+    console.log("Categoria encontrada no PostgreSQL:", categoryId);
+
     const date = transaction.date.toISOString().split("T")[0];
 
     const result = await pool.query(
@@ -58,8 +66,8 @@ export async function saveBankTransaction(
         transaction.description,
         transaction.amount,
         date,
-        transaction.accountId,
-        transaction.categoryId,
+        accountId,
+        categoryId,
         transaction.id,
         "PLUGGY"
     ]

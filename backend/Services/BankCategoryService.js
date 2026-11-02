@@ -2,7 +2,7 @@ import pool from "../src/database/connection.js";
 
 export async function getOrCreateBankCategory(transaction, accountType) {
 
-    if (!transaction.category || !transaction.categoryId) {
+    if (!transaction.category ) {
         return null;
     }
 

@@ -24,7 +24,7 @@ export async function syncBankData(userId) {
         throw new Error(
             "Nenhuma conexão bancária encontrada"
         );
-    }
+    }v
 
     const savedAccounts = [];
     const savedTransactions = [];
@@ -46,7 +46,6 @@ export async function syncBankData(userId) {
 
             savedAccounts.push(savedAccount);
 
-            // Busca as transações dessa conta
             const transactions =
                 await getTransactionsByAccountId(
                     account.id
