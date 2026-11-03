@@ -1,384 +1,83 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import Form from '../Components/Form';
+import Modal from '../Components/Modal';
+import CategoryForm from '../Components/CategoryForm';
 import BankConnect from '../Components/BankConnect';
 import FinancialOverview from '../Components/FinancialOverview';
 import TransactionCard from '../Components/TransactionCard';
-
 import { getTransactions } from '../Services/TransactionApis';
 import { getAccounts } from '../Services/AccountApis';
 import { syncBankData } from '../Services/PluggyApis';
+import { parseTransactionDate } from '../Utils/transactionUtils';
 
-
-function Dashboard() {
-
+export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [modal, setModal] = useState(null);
   const navigate = useNavigate();
 
-
-  useEffect(() => {
-
-    async function loadDashboard() {
-
-      setLoading(true);
-
-      try {
-
-        try {
-
-          await syncBankData();
-
-        } catch (error) {
-
-          console.log(
-            'Sincronização bancária não realizada:',
-            error.message
-          );
-
-        }
-
-
-        const transactionsData = await getTransactions();
-
-        const accountsData = await getAccounts();
-
-
-        setTransactions(transactionsData);
-        setAccounts(accountsData);
-
-      } catch (error) {
-
-        console.error(
-          'Erro ao carregar Dashboard:',
-          error
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    }
-
-
-    async function refreshDashboardData() {
-
-      try {
-
-        const transactionsData =
-          await getTransactions();
-
-        const accountsData =
-          await getAccounts();
-
-
-        setTransactions(transactionsData);
-        setAccounts(accountsData);
-
-      } catch (error) {
-
-        console.error(
-          'Erro ao atualizar dados do Dashboard:',
-          error
-        );
-
-      }
-
-    }
-
-
-    loadDashboard();
-
-
-    const interval = setInterval(() => {
-
-      refreshDashboardData();
-
-    }, 30000);
-
-
-    return () => {
-
-      clearInterval(interval);
-
-    };
-
+  const refresh = useCallback(async () => {
+    const [nextTransactions, nextAccounts] = await Promise.all([getTransactions(), getAccounts()]);
+    setTransactions(nextTransactions);
+    setAccounts(nextAccounts);
   }, []);
 
-async function handleTransactionCreated() {
+  useEffect(() => {
+    let active = true;
+    async function start() {
+      try {
+        try { await syncBankData(); }
+        catch (err) { console.info('Sincronização bancária indisponível:', err.message); }
+        if (active) await refresh();
+      } catch (err) { if (active) setError(err.message || 'Erro ao carregar dados.'); }
+      finally { if (active) setLoading(false); }
+    }
+    start();
+    const interval = setInterval(() => refresh().catch(console.error), 30000);
+    return () => { active = false; clearInterval(interval); };
+  }, [refresh]);
 
-  try {
-
-    const transactionsData = await getTransactions();
-
-    setTransactions(transactionsData);
-
-  } catch (error) {
-
-    console.error(
-      'Erro ao atualizar transações:',
-      error
-    );
-
+  async function transactionCreated() {
+    await refresh();
+    setModal(null);
   }
 
-}
+  const recent = [...transactions].sort((a, b) => {
+    const dateDiff = parseTransactionDate(b.data) - parseTransactionDate(a.data);
+    return dateDiff || Number(b.id) - Number(a.id);
+  }).slice(0, 5);
 
+  const actionStyle = 'inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition active:scale-[0.99]';
 
   return (
-
-    <div className="min-h-screen bg-gray-100 text-gray-800">
-
-
-      {/* HEADER */}
-
-      <header className="bg-gray-900 px-8 py-8 text-white">
-
-        <div
-          className="
-            mx-auto
-            flex
-            w-[90%]
-            max-w-6xl
-            items-center
-            justify-between
-          "
-        >
-
-          <div>
-
-            <p
-              className="
-                text-sm
-                font-semibold
-                uppercase
-                tracking-widest
-                text-gray-400
-              "
-            >
-              Finance SaaS
-            </p>
-
-
-            <h1 className="text-3xl font-bold">
-              Minhas finanças
-            </h1>
-
-          </div>
-
-
+    <div className="min-h-screen bg-slate-100 text-slate-800">
+      <header className="bg-slate-900 px-5 py-8 text-white sm:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-5">
+          <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Finance SaaS</p><h1 className="mt-1 text-3xl font-bold">Minhas finanças</h1><p className="mt-1 text-sm text-slate-300">Seu dinheiro, em um só lugar.</p></div>
           <BankConnect />
-
         </div>
-
       </header>
-
-
-
-      {/* CONTEÚDO */}
-
-      <main className="mx-auto w-[90%] max-w-6xl py-10">
-
-
-        <div
-          className="
-            grid
-            grid-cols-1
-            gap-8
-            lg:grid-cols-[350px_1fr]
-          "
-        >
-
-
-          {/* FORMULÁRIO */}
-
-          <Form
-            onTransactionCreated={
-              handleTransactionCreated
-            }
-          />
-
-
-
-          {/* TRANSAÇÕES RECENTES */}
-
-          <section
-            className="
-              rounded-2xl
-              bg-white
-              p-7
-              shadow-sm
-            "
-          >
-
-            <div
-              className="
-                mb-6
-                flex
-                items-center
-                justify-between
-              "
-            >
-
-              <div>
-
-                <p
-                  className="
-                    text-sm
-                    font-semibold
-                    uppercase
-                    tracking-wider
-                    text-gray-500
-                  "
-                >
-                  Histórico
-                </p>
-
-
-                <h2 className="text-2xl font-bold">
-                  Transações recentes
-                </h2>
-
-              </div>
-
-
-              <span
-                className="
-                  rounded-full
-                  bg-gray-100
-                  px-3
-                  py-2
-                  text-sm
-                "
-              >
-                {transactions.length}
-                {' '}
-                transações
-              </span>
-
+      <main className="mx-auto w-full max-w-7xl space-y-8 px-5 py-8 sm:px-8">
+        <section className="rounded-2xl bg-white p-5 shadow-sm sm:p-8">
+          <div className="mb-7 flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+            <div><p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">Movimentações</p><h2 className="mt-1 text-2xl font-bold text-slate-900">Transações recentes</h2><p className="mt-1 text-sm text-slate-500">Acompanhe e organize seus lançamentos.</p></div>
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => setModal('transaction')} className={`${actionStyle} bg-emerald-600 text-white hover:bg-emerald-700`}>＋ Criar transação</button>
+              <button onClick={() => setModal('category')} className={`${actionStyle} border border-slate-300 bg-white text-slate-800 hover:bg-slate-100`}>＋ Criar categoria</button>
             </div>
-
-
-
-            {loading ? (
-
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-3
-                  py-10
-                  text-gray-500
-                "
-              >
-
-                <div
-                  className="
-                    h-6
-                    w-6
-                    animate-spin
-                    rounded-full
-                    border-4
-                    border-gray-300
-                    border-t-gray-700
-                  "
-                />
-
-
-                <span>
-                  Atualizando suas finanças...
-                </span>
-
-              </div>
-
-            ) : transactions.length === 0 ? (
-
-              <div
-                className="
-                  py-10
-                  text-center
-                  text-gray-500
-                "
-              >
-                Nenhuma transação encontrada.
-              </div>
-
-            ) : (
-
-              <div className="flex flex-col gap-3">
-
-
-                {transactions
-                  .slice(0, 5)
-                  .map(transaction => (
-
-                    <TransactionCard
-                      key={transaction.id}
-                      transaction={transaction}
-                    />
-
-                  ))}
-
-
-
-                <button
-                  onClick={() =>
-                    navigate(
-                      '/transactions',
-                      {
-                        state: {
-                          transactions
-                        }
-                      }
-                    )
-                  }
-                  className="
-                    mt-3
-                    w-full
-                    rounded-xl
-                    border
-                    border-gray-300
-                    px-4
-                    py-3
-                    font-semibold
-                    text-gray-700
-                    transition
-                    hover:bg-gray-100
-                  "
-                >
-                  Ver todas as transações →
-                </button>
-
-              </div>
-
-            )}
-
-          </section>
-
-        </div>
-
-
-
-        {/* RESUMO FINANCEIRO */}
-
-        <FinancialOverview
-          transactions={transactions}
-          accounts={accounts}
-        />
-
-
+          </div>
+          <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4"><span className="text-sm text-slate-500">Últimos lançamentos</span><span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium">{transactions.length} transações</span></div>
+          {error && <p role="alert" className="mb-4 text-sm text-red-600">{error}</p>}
+          {loading ? <p className="py-10 text-center text-slate-500">Atualizando suas finanças...</p> : recent.length === 0 ? <p className="py-10 text-center text-slate-500">Nenhuma transação encontrada.</p> : <div className="space-y-3">{recent.map(t => <TransactionCard key={t.id} transaction={t} />)}</div>}
+          <button onClick={() => navigate('/transactions', { state: { transactions } })} className="mt-6 w-full rounded-xl border border-slate-300 px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50">Ver todas as transações →</button>
+        </section>
+        <FinancialOverview transactions={transactions} accounts={accounts} />
       </main>
-
+      {modal === 'transaction' && <Modal title="Criar transação" onClose={() => setModal(null)}><Form onTransactionCreated={transactionCreated} /></Modal>}
+      {modal === 'category' && <Modal title="Criar categoria" onClose={() => setModal(null)}><CategoryForm onCreated={() => setModal(null)} /></Modal>}
     </div>
-
   );
-
 }
-
-
-export default Dashboard;

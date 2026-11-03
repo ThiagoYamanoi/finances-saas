@@ -58,7 +58,10 @@ export async function saveBankTransaction(
         amount = EXCLUDED.amount,
         data = EXCLUDED.data,
         account_id = EXCLUDED.account_id,
-        category_id = EXCLUDED.category_id
+        category_id = category_id = COALESCE(
+            EXCLUDED.category_id,
+            transactions.category_id
+        )
 
     RETURNING *
     `,

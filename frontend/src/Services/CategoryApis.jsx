@@ -14,3 +14,25 @@ export async function getCategories() {
 
   return response.json();
 }
+
+export async function createCategory(name, type) {
+
+    const response = await authenticatedFetch(`${API_URL}/categories`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name,
+            type
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Erro ao criar categoria");
+    }
+
+    return data;
+}

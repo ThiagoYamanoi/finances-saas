@@ -28,6 +28,7 @@ export async function getOrCreateBankCategory(transaction, accountType) {
                 ? "INCOME"
                 : "EXPENSE";
     }
+    
 
     const result = await pool.query(
         `
@@ -35,16 +36,18 @@ export async function getOrCreateBankCategory(transaction, accountType) {
             name,
             type,
             pluggy_category_id,
-            source
+            source,
+            user_id
         )
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id
         `,
         [
             transaction.category,
             type,
             transaction.categoryId,
-            "PLUGGY"
+            "PLUGGY",
+            null
         ]
     );
 

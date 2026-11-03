@@ -6,6 +6,8 @@ import { getCategories  } from '../Services/CategoryApis';
 import  isValidDate  from '../Services/CheckDate';
 
 function Form({ onTransactionCreated }) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
 
 
@@ -56,6 +58,8 @@ function Form({ onTransactionCreated }) {
     };
 
     try {
+      setError('');
+      setSaving(true);
       await createTransaction(transaction);
 
       if (onTransactionCreated) {
@@ -70,12 +74,15 @@ function Form({ onTransactionCreated }) {
 
     } catch (error) {
       console.error('Erro ao criar transação:', error);
+      setError(error.message || 'Erro ao criar transação');
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
     
-    <section className="rounded-2xl bg-white p-7 shadow-sm">
+    <section>
       <div className="mb-6">
         <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">
           Nova movimentação
@@ -209,7 +216,9 @@ function Form({ onTransactionCreated }) {
 
             
 
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <button
+          disabled={saving}
           type="submit"
           className="
             mt-2
@@ -224,7 +233,7 @@ function Form({ onTransactionCreated }) {
             active:scale-[0.99]
           "
         >
-          Adicionar transação
+          {saving ? 'Salvando...' : 'Adicionar transação'}
         </button>
       </form>
     </section>

@@ -37,7 +37,6 @@ export async function syncBankData(userId) {
 
         for (const account of accounts) {
 
-            // Salva ou atualiza a conta
             const savedAccount = await saveBankAccount(
                 account,
                 connection.id,
