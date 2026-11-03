@@ -11,7 +11,7 @@ export default function CategoryForm({ onCreated }) {
     event.preventDefault();
     setError(''); setSaving(true);
     try {
-      await createCategory(name.trim(), type);
+      await createCategory(name.trim(), type.toUpperCase());
       setName('');
       await onCreated?.();
     } catch (err) { setError(err.message || 'Não foi possível criar a categoria.'); }
