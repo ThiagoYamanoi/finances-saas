@@ -65,6 +65,11 @@ router.post('/', authenticateToken, async (req, res) =>{
         ] 
       
     )
+
+      return res.status(201).json({
+    message: "Categoria criada com sucesso",
+    category: result.rows[0]
+  });
   } catch (error){
   console.error(error);
 
