@@ -21,6 +21,10 @@
     "pluggy-sdk": "^0.90.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
