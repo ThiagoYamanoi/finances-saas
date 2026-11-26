@@ -36,6 +36,19 @@ O projeto foi construído principalmente como um projeto de portfólio e aprendi
 - Render — Backend
 - Neon — PostgreSQL
 
+### CI/CD com GitHub Actions
+
+O workflow em `.github/workflows/ci-cd.yml` executa os testes, o lint e o build do frontend, além de instalar as dependências e validar a sintaxe do backend. Essas verificações rodam em Pull Requests e em pushes para `main`. Após um push validado para `main`, o frontend é publicado na Vercel e o deploy do backend é acionado no Render.
+
+Configure estes **Repository secrets** em **Settings → Secrets and variables → Actions**:
+
+- `VERCEL_TOKEN`: token de acesso da Vercel
+- `VERCEL_ORG_ID`: ID da organização/conta da Vercel
+- `VERCEL_PROJECT_ID`: ID do projeto do frontend na Vercel
+- `RENDER_DEPLOY_HOOK`: URL do deploy hook do serviço backend no Render
+
+Defina também `VITE_API_URL` nas variáveis de ambiente de produção do projeto Vercel. Mantenha as demais variáveis sensíveis do backend configuradas diretamente no Render. Se a Vercel ou o Render já estiverem configurados para publicar automaticamente a cada push, desative esse deploy automático para evitar publicações duplicadas. Caso a branch principal tenha outro nome, ajuste os filtros de branch do workflow.
+
 ---
 
 # Versão 1.0
@@ -117,8 +130,6 @@ As próximas versões poderão incluir melhorias de segurança, infraestrutura, 
 - containerizar a aplicação com Docker
 - hospedar os serviços em uma VPS própria
 - utilizar Coolify para gerenciamento de deploy e infraestrutura
-- configurar CI/CD com GitHub Actions
-- automatizar testes e deploys
 - adicionar monitoramento da aplicação
 
 ## Performance
